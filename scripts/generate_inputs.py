@@ -14,14 +14,15 @@ crams = [BUCKET_URL + cram.name for cram in test_crams.list_blobs()]
 crams = crams[:NUMBER_OF_TEST_CRAMS]
 
 inputs = {
-    "Pre_Merge_SV.aligned_crams" : crams,
-    "Pre_Merge_SV.aligned_cram_suffix" : ".recab.cram",
-    "Pre_Merge_SV.ref_fasta": "gs://topmed-reference/hs38DH.fa",
-    "Pre_Merge_SV.ref_cache": "gs://topmed-reference/hs38DH.cache.tar.gz",
+    "telseq.aligned_crams" : crams,
+    "telseq.aligned_cram_suffix" : ".recab.cram",
+    "telseq.ref_fasta": "gs://topmed-reference/hs38DH.fa",
+    "telseq.ref_fasta_index": "gs://topmed-reference/hs38DH.fa.fai",
+    "telseq.ref_cache": "gs://topmed-reference/hs38DH.cache.tar.gz",
 
      "##_COMMENT3": "SYSTEM PARAMETERS",
-    "Pre_Merge_SV.disk_size": 120,
-    "Pre_Merge_SV.preemptible_tries": 3
+    "telseq.disk_size": 200,
+    "telseq.preemptible_tries": 2
 }
 
 inputs_json = json.dumps(inputs, ensure_ascii = False)
