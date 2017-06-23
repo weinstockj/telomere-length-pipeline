@@ -38,15 +38,17 @@ task run_telseq {
     Int disk_size
     Int preemptible_tries
 
-    command {
+    command <<< 
         ln -s ${input_bam} ${basename}.bam
+        read_length=$(samtools view ${basename}.bam | awk '{print length($10)}' | head -1000 | sort -u | sort -r | tail -n1)
 
+        echo "read length is: $read_length"
         # run telseq 
-        telseq -o ${basename}.telseq.out ${basename}.bam
-    }
+        telseq -u -o ${basename}.telseq.out -r $read_length ${basename}.bam
+    >>> 
 
     runtime {
-        docker: "jweinstk/telseq@sha256:c45a65227b782b7f05846afb926d890476129132baf787f12b4c1cf1ab6650fc"
+        docker: "jweinstk/telseq@sha256:bd828851e83bf13f097591e5935989287b87ce8de1e75f117ac95f09e9967d76"
         cpu: "1"
         memory: "7 GB"
         disks: "local-disk " + disk_size + " HDD" 
