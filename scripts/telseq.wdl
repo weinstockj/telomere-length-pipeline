@@ -7,7 +7,8 @@ workflow telseq {
     Int disk_size
     Int preemptible_tries
 
-    Array[File] aligned_crams
+    File aligned_crams_file
+    Array[File] aligned_crams = read_lines(aligned_crams_file)
     String aligned_cram_suffix
 
     scatter (aligned_cram in aligned_crams) {
