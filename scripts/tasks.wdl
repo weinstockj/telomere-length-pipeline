@@ -1,4 +1,4 @@
-task convert_to_bam {
+task run_telseq {
     File input_cram
     String basename
     File ref_cache
@@ -7,7 +7,7 @@ task convert_to_bam {
     Int disk_size
     Int preemptible_tries
 
-    command {
+    command <<< 
         ln -s ${input_cram} ${basename}.cram
 
         # build reference cache
@@ -16,30 +16,7 @@ task convert_to_bam {
 
         # convert cram to bam
         samtools view -T ${ref_fasta} -b -o ${basename}.bam ${basename}.cram
-    }
 
-    runtime {
-        docker: "jweinstk/samtools@sha256:8b804951435fc321b9bc178e555b63ec022392ebdbb31df2a98385e6335d77cf"
-        cpu: "1"
-        memory: "5 GB"
-        disks: "local-disk " + disk_size + " HDD" 
-        preemptible: preemptible_tries
-    }
-
-    output {
-        File output_bam = "${basename}.bam"
-    }
-
-}
-
-task run_telseq {
-    File input_bam 
-    String basename
-    Int disk_size
-    Int preemptible_tries
-
-    command <<< 
-        ln -s ${input_bam} ${basename}.bam
         read_length=$(samtools view ${basename}.bam | awk '{print length($10)}' | head -1000 | sort -u | sort -r | tail -n1)
 
         echo "read length is: $read_length"

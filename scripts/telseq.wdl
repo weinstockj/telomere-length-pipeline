@@ -15,7 +15,7 @@ workflow telseq {
 
         String basename = sub(sub(aligned_cram, "^.*/", ""), aligned_cram_suffix + "$", "")
 
-        call T.convert_to_bam as convert_to_bam {
+        call T.run_telseq {
             input:
                 input_cram = aligned_cram,
                 basename = basename,
@@ -24,14 +24,6 @@ workflow telseq {
                 ref_fasta_index = ref_fasta_index,
                 disk_size = disk_size,
                 preemptible_tries = preemptible_tries
-        }
-
-        call T.run_telseq {
-            input:
-                basename = basename,
-                disk_size = disk_size,
-                preemptible_tries = preemptible_tries,
-                input_bam = convert_to_bam.output_bam
         }
 
     }
