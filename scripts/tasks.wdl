@@ -48,24 +48,38 @@ task run_computel {
     Int preemptible_tries
 
     command <<< 
+        set -e pipefail
+
         ln -s ${input_cram} ${basename}.cram
 
         # build reference cache
         tar -zxf ${ref_cache}
         export REF_CACHE=./md5/%2s/%2s/%s
 
-        # convert cram to fastq 
-        samtools fastq -1 ${basename}.first.fastq -2 ${basename}.second.fastq -0 ${basename}.unpaired.fastq ${basename}.cram 
+        # convert cram to bam
+        echo "now converting cram->bam"
+        date
+        samtools view -T ${ref_fasta} -b -o ${basename}.bam ${basename}.cram
+        date
+
+        # convert bam to fastq 
+        echo "now converting to bam->fastq"
+        date
+        samtools fastq -1 ${basename}.first.fastq -2 ${basename}.second.fastq -0 ${basename}.unpaired.fastq ${basename}.bam 
+        date
 
         # run computel
-        computel.sh -1 ${basename}.first.fastq -2 {basename}.second.fastq -proc 2
+        echo "now running computel"
+        date
+        computel.sh -1 ${basename}.first.fastq -2 ${basename}.second.fastq -proc 2
+        date
 
         ln -s computel_out/tel.length.xls ${basename}.computel.tsv
 
     >>>
 
     runtime {
-        docker: "jweinstk/computel@sha256:68439728d544779068a64b9b706f5354d7d794f2ec11115f9522a004c9d8a237"
+        docker: "jweinstk/computel@sha256:adda0198a4a8d155b83c1500c7ed9b9713459e0e2461dcbaf4a9e5726e71dda8"
         cpu: "2"
         memory: "7.5 GB"
         disks: "local-disk " + disk_size + " HDD" 
