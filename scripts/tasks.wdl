@@ -90,3 +90,40 @@ task run_computel {
         File output_computel = "${basename}.computel.tsv"
     }
 }
+
+task run_count_telomeres_short {
+    File input_cram
+    String basename
+    File ref_cache
+    File ref_fasta
+    File ref_fasta_index
+    Int disk_size
+    Int preemptible_tries
+
+    command <<< 
+        set -e pipefail
+
+        ln -s ${input_cram} ${basename}.cram
+
+        # build reference cache
+        tar -zxf ${ref_cache}
+        export REF_CACHE=./md5/%2s/%2s/%s
+
+        date
+        samtools view -T ${ref_fasta} ${input_cram} | 
+            awk '{print $10}' |
+            ./opt/count-telomeres-short > ${basename}.tcount
+    >>>
+
+    runtime {
+        docker: "jweinstk/count-telomeres-short:latest"
+        cpu: "1"
+        memory: "6.5 GB"
+        disks: "local-disk " + disk_size + " HDD" 
+        preemptible: preemptible_tries
+    }
+
+    output {
+        File output_count_telomeres_short = "${basename}.tcount"
+    }
+}
