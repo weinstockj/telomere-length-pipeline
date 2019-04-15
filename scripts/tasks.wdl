@@ -21,7 +21,7 @@ task run_telseq {
 
         echo "read length is: $read_length"
         # run telseq 
-        telseq -u -o ${basename}.telseq.out -r $read_length ${basename}.bam
+        telseq -k 12 -u -o ${basename}.telseq.out -r $read_length ${basename}.bam
     >>> 
 
     runtime {
@@ -103,6 +103,9 @@ task run_count_telomeres_short {
     command <<< 
         set -e pipefail
 
+        orig_dir=$(pwd)
+        echo "original directory is $orig_dir"
+        cd /opt/
         ln -s ${input_cram} ${basename}.cram
 
         # build reference cache
@@ -112,7 +115,9 @@ task run_count_telomeres_short {
         date
         samtools view -T ${ref_fasta} ${input_cram} | 
             awk '{print $10}' |
-            ./opt/count-telomeres-short > ${basename}.tcount
+            ./count-telomeres-short > ${basename}.tcount
+            
+        mv ${basename}.tcount $orig_dir
     >>>
 
     runtime {
